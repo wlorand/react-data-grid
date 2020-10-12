@@ -3,7 +3,7 @@ import React, { Component } from 'react';
 // kendo react packages
 import { DropDownList } from '@progress/kendo-react-dropdowns';
 import { Grid, GridColumn } from '@progress/kendo-react-grid';
-// import { Window } from '@progress/kendo-react-dialogs';
+import { Window } from '@progress/kendo-react-dialogs';
 import { process } from '@progress/kendo-data-query';
 
 // local mock-data
@@ -26,7 +26,9 @@ class App extends Component {
     gridDataState: {
       sort: [{ field: "ProductName", dir: "asc" }],
       page: { skip: 0, take: 10 } // 10 at a time ?
-    }
+    },
+    windowVisible: false,
+    gridClickedRow: {}
   }  
 
   // component class methods
@@ -57,6 +59,19 @@ class App extends Component {
     this.setState({gridDataState: e.data});
   }
 
+  handleGridRowClick = (e) => {
+    this.setState({
+        windowVisible: true,
+        gridClickedRow: e.dataItem
+    });
+  }
+
+  closeWdddindow = (e) => {
+    this.setState({
+        windowVisible: false
+    });
+  }
+
   render() {
     return (
       <div className="app-title">
@@ -77,12 +92,29 @@ class App extends Component {
           sortable={true}
           {...this.state.gridDataState}
           onDataStateChange={this.handleGridDataStateChange}
+          onRowClick={this.handleGridRowClick}
           style={{ height: "400px" }}>
   			    <GridColumn field="ProductName" title="Product Name" />
   			    <GridColumn field="UnitPrice" title="Price" format="{0:c}" />
   			    <GridColumn field="UnitsInStock" title="Units in Stock" />
   			    <GridColumn field="Discontinued" cell={checkboxColumn} /> 
 		    </Grid>
+
+        {this.state.windowVisible &&
+          <Window
+            title="Product Details"
+            height={250}
+            onClose={(e) => this.setState({windowVisible: false})}>
+            <dl style={{textAlign:"left"}}>
+              <dt>Product Name</dt>
+              <dd>{this.state.gridClickedRow.ProductName}</dd>
+              <dt>Product ID</dt>
+              <dd>{this.state.gridClickedRow.ProductID}</dd>
+              <dt>Quantity per Unit</dt>
+              <dd>{this.state.gridClickedRow.QuantityPerUnit}</dd>
+            </dl>
+          </Window>
+        }
       </div>
     );
   }
